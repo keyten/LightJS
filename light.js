@@ -1796,6 +1796,32 @@
 	})( window );
 	
 
+	var ready = false;
+	lr.ready = function(fn){
+
+		if(ready) fn(lr);
+
+		var exec = false,
+			func = function(){
+				if(exec) return;
+				fn(lr);
+				exec = ready = true;
+			}
+
+		if(document.readyState){
+			if(document.readyState == 'loaded' || document.readyState == 'complete') func();
+			else
+				var s = setInterval(function(){
+					if(document.readyState == 'loaded' || document.readyState == 'complete') func();
+				}, 50);
+		}
+		else {
+			window.addEventListener('load', func, false);
+			document.addEventListener('DOMContentLoaded', func, false);
+		}
+
+	}
+
 	return lr;
 
  })(window);
