@@ -195,11 +195,11 @@
 		var mix = {}, i, obj, key, op, mp;
 		for(i = 0; i < arguments.length; i++){
 			obj = arguments[i];
-			if(lr.typeof(obj) != 'object') continue;
+			if(lr.type(obj) != 'object') continue;
 			for(key in obj){
 				op = obj[key];
 				mp = mix[key];
-				mix[key] = (mp && lr.typeof(op) == 'object' && lr.typeof(mp) == 'object') ? lr.merge(mp, op) : lr.unlink(op);
+				mix[key] = (mp && lr.type(op) == 'object' && lr.type(mp) == 'object') ? lr.merge(mp, op) : lr.unlink(op);
 			}
 		}
 		return mix;
@@ -213,15 +213,15 @@
 	}
 		
 	lr.splat = function(a){
-		var t = lr.typeof(a);
-		return t !== 'undefined' && t !== 'null' ? ((t !== 'array' && t !== 'arguments') ? [a] : Array.prototype.slice.call(a,0)) : [];
+		var t = lr.type(a);
+		return t !== 'undefined' && t !== 'null' ? ((t !== 'array' && t !== 'arguments') ? [a] : arrayProto.slice.call(a,0)) : [];
 	}
 	
 	lr.time = Date.now || function(){ return +new Date; }
 	
 	lr.unlink = function(obj){
 		var unlinked;
-		switch(lr.typeof(obj)){
+		switch(lr.type(obj)){
 			case 'object':
 				unlinked = {};
 				for(var i in obj) unlinked[i] = lr.unlink(obj[i]);
