@@ -7,7 +7,13 @@
  */
  Light = lr = $ = (function(window, undefined){
 
-	var lr = function(selector, context){}
+	var lr = function(selector, context){
+
+		if(lr.isFunction(selector)) lr.ready(selector);
+
+		// todo: add lr.element class...
+
+	}
 
 	lr.version = 0.1;
 
