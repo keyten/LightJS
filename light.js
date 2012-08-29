@@ -126,6 +126,145 @@
  	}
 
 
+ 	lr.eval = function(c){
+ 		if('execScript' in window) return window.execScript(c);
+
+ 		var s = document.createElement('script');
+ 		s.textContent = c;
+ 		document.head.appendChild(s);
+ 		document.head.removeChild(s);
+ 	}
+
+ 	lr.try = function(){
+ 		var err = null;
+ 		for(var i = 0, l = arguments.length; i < l; i++){
+ 			try {
+ 				return arguments[i](i, err);
+ 			}
+ 			catch(e){ err = e }
+ 		}
+ 		return null;
+ 	}
+
+ 	lr.random = function(min, max){
+ 		return Math.floor( Math.random() * (max - min + 1) + min );
+ 	}
+ 	lr.random.pick = function(collection){
+ 		return collection[lr.random(0,collection.length-1)];
+ 	}
+
+ 	lr.by = function(num, fn){
+ 		for(var i = 0; i < num; i++)
+ 			fn(i);
+ 	}
+
+ 	lr.provide = function(path, obj){
+ 		var that = window,
+ 			to;
+ 		path = path.split('.');
+ 		lr.each(path, function(val, i){
+ 			to = path[i];
+ 			if(!that[to]) that[to] = {};
+ 			if(i == path.length-1 && typeof obj !== undefined)
+ 				that[to] = obj;
+ 			that = that[to];
+ 		});
+ 	}
+
+	lr.argument = function(i){
+		return function(){
+			return arguments[i];
+		}
+	}
+	
+	lr.chk = function(v){ return !!(v || v == 0 || v == '') }
+	
+	lr.clear = function(s){
+		clearTimeout(s);
+		clearInterval(s);
+		return null;
+	}
+	
+	lr.empty = function(){}
+	
+	lr.lambda = function(v){
+		return (typeof v == 'function') ? v : function(){ return v };
+	}
+	
+	lr.merge = function(){
+		var mix = {}, i, obj, key, op, mp;
+		for(i = 0; i < arguments.length; i++){
+			obj = arguments[i];
+			if(lr.typeof(obj) != 'object') continue;
+			for(key in obj){
+				op = obj[key];
+				mp = mix[key];
+				mix[key] = (mp && lr.typeof(op) == 'object' && lr.typeof(mp) == 'object') ? lr.merge(mp, op) : lr.unlink(op);
+			}
+		}
+		return mix;
+	}
+	
+	lr.pick = function(){
+		for(var i = 0; i < arguments.length; i++){
+			if(arguments[i] != undefined) return arguments[i];
+		}
+		return null;
+	}
+		
+	lr.splat = function(a){
+		var t = lr.typeof(a);
+		return t !== 'undefined' && t !== 'null' ? ((t !== 'array' && t !== 'arguments') ? [a] : Array.prototype.slice.call(a,0)) : [];
+	}
+	
+	lr.time = Date.now || function(){ return +new Date; }
+	
+	lr.unlink = function(obj){
+		var unlinked;
+		switch(lr.typeof(obj)){
+			case 'object':
+				unlinked = {};
+				for(var i in obj) unlinked[i] = lr.unlink(obj[i]);
+			break;
+			case 'array':
+				unlinked = [];
+				for(var i in obj) unlinked[i] = lr.unlink(obj[i]);
+			break;
+			default: return obj;
+		}
+		return unlinked;
+	}
+
+	var data = [];
+	lr.data = function(obj,key,val){
+		if(val !== undefined){
+			var obj = { el:obj, props:{} }, is = 0;
+			for(var i = 0, l = data.length; i < l; i++){
+				if(data[i].el === obj){
+					obj = data[i];
+					is = 1;
+					break;
+				}
+			}
+			if(!is) data.push(obj);
+			return obj.props[key] = val;
+		}
+		else if(val === null){
+			return lr.removeData(obj,key);
+		}
+		else {
+			for(var i = 0, l = data.length; i < l; i++){
+				if(data[i].el === obj) return data[i].props[key];
+			}
+		}
+	}
+	lr.removeData = function(obj,key){
+		for(var i = 0, l = data.length; i < l; i++){
+			if(data[i] === obj) delete data[i].props[key];
+		}
+		return null;
+	}
+
  	return lr;
 
  })(window);
