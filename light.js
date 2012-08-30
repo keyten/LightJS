@@ -11,8 +11,14 @@
 
 		if(lr.isFunction(selector)) lr.ready(selector);
 
-		// todo: add lr.element class...
+		else if(selector == 'body' && !context && document.body) return new lr.element(document.body);
 
+		else if(selector.nodeName || selector instanceof NodeList || selector instanceof lr.element)
+			return new lr.element(selector);
+
+		else if(lr.isString(selector))
+			return new lr.element( lr.find(selector, context), selector );
+		
 	}
 
 	lr.version = 0.1;
@@ -1827,6 +1833,38 @@
 		}
 
 	}
+
+
+	lr.element = lr.class({
+
+		initialize:function(element, selector){
+			if(selector) this.selector;
+			if(lr.isNumber(element.length)){
+				for(var i = 0, l = this.length = element.length; i < l; i++)
+					this[i] = element[i];
+			}
+			else
+				this.length = 1,
+				this[0] = element;
+		},
+
+		selector:'',
+		each:function(fn){
+			for(var i = 0, l = this.length; i < l; i++)
+				fn.call(this[i], i, this);
+		},
+		map:function(fn){
+			var arr = [];
+			for(var i = 0, l = this.length; i < l; i++)
+				arr.push( fn.call(this[i], i, this) );
+			return arr;
+		},
+		size:function(){ return this.length },
+		get:function(){
+			return this.map(function(){ return this; });
+		}
+
+	});
 
 	return lr;
 
