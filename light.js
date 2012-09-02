@@ -1852,6 +1852,7 @@
 		each:function(fn){
 			for(var i = 0, l = this.length; i < l; i++)
 				fn.call(this[i], i, this);
+			return this;
 		},
 		map:function(fn){
 			var arr = [];
@@ -1862,7 +1863,36 @@
 		size:function(){ return this.length },
 		get:function(){
 			return this.map(function(){ return this; });
-		}
+		},
+
+		html:function(code){
+			return code != null ? this.each(function(){ this.innerHTML = code }) : this[0].innerHTML;
+		},
+		text:function(text){
+			return text != null ? this.each(function(){ this.textContent = text }) : this[0].textContent;
+		},
+		append:function(code){
+			return this.each(function(){ this.innerHTML += code });
+		},
+		prepend:function(code){
+			return this.each(function(){ this.innerHTML = code + this.innerHTML });
+		},
+		before:function(){},
+		after:function(){},
+		replace:function(){},
+		clone:function(){
+			return new lr.element( this.map(function(){ return this.cloneNode(true) }) );
+		},
+		empty:function(){
+			return this.html('');
+		},
+		remove:function(){
+			return this.each(function(){ this.parentNode.removeChild(this) });
+		},
+		appendTo:function(){},
+		prependTo:function(){},
+		insertBefore:function(){},
+		insertAfter:function(){}
 
 	});
 
