@@ -125,6 +125,10 @@
 		}
 		cls._identifier = identifier;
 		lr.implement(cls, properties);
+		if('extend' in properties){
+			lr.extend(cls, properties.extend);
+		}
+		// todo: add 'implement' in properties
 
 		cls.extend = function(arg){ lr.extend(this, arg) }
 		cls.implement = function(arg){ lr.implement(this, arg) }
