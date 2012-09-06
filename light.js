@@ -1892,13 +1892,17 @@
 			return text != null ? this.each(function(){ this.textContent = text }) : this[0].textContent;
 		},
 		append:function(code){
-			return this.each(function(){ this.innerHTML += code });
+			return this.each(function(){ this.insertAdjacentHTML('beforeEnd', code) });
 		},
 		prepend:function(code){
-			return this.each(function(){ this.innerHTML = code + this.innerHTML });
+			return this.each(function(){ this.insertAdjacentHTML('afterBegin', code) });
 		},
-		before:function(){},
-		after:function(){},
+		before:function(){
+			return this.each(function(){ this.insertAdjacentHTML('beforeBegin', code) });
+		},
+		after:function(){
+			return this.each(function(){ this.insertAdjacentHTML('afterEnd', code) });
+		},
 		replace:function(){},
 		clone:function(){
 			return new lr.element( this.map(function(){ return this.cloneNode(true) }) );
