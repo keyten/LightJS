@@ -1897,10 +1897,10 @@
 		prepend:function(code){
 			return this.each(function(){ this.insertAdjacentHTML('afterBegin', code) });
 		},
-		before:function(){
+		before:function(code){
 			return this.each(function(){ this.insertAdjacentHTML('beforeBegin', code) });
 		},
-		after:function(){
+		after:function(code){
 			return this.each(function(){ this.insertAdjacentHTML('afterEnd', code) });
 		},
 		replace:function(){},
