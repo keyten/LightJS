@@ -18,7 +18,7 @@
 
 		else if(lr.isString(selector)){
 
-			if(selector[0] == '<' && selector[ selector.length-1 ])
+			if(selector[0] == '<' && selector[ selector.length-1 ] == '>')
 				return new lr.element( lr.element.create(selector, context) );
 
 			return new lr.element( lr.find(selector, context), selector );
