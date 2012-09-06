@@ -16,8 +16,14 @@
 		else if(selector.nodeName || selector instanceof NodeList || selector instanceof lr.element)
 			return new lr.element(selector);
 
-		else if(lr.isString(selector))
+		else if(lr.isString(selector)){
+
+			if(selector[0] == '<' && selector[ selector.length-1 ])
+				return new lr.element( lr.element.create(selector, context) );
+
 			return new lr.element( lr.find(selector, context), selector );
+
+		}
 		
 	}
 
@@ -1850,6 +1856,16 @@
 			else
 				this.length = 1,
 				this[0] = element;
+		},
+
+		extend:{
+			create:function(text, context){
+
+				var div = (context || document).createElement('div');
+				div.innerHTML = text;
+				return arrayProto.slice.call(div.childNodes);
+
+			}
 		},
 
 		selector:'',
