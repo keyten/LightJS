@@ -16,6 +16,18 @@
 		else if(selector.nodeName || selector instanceof NodeList || selector instanceof lr.element)
 			return new lr.element(selector);
 
+		else if(lr.isArray(selector)){
+			var arr = [];
+			lr.each(selector, function(val){
+				if(lr.isString(val))
+					arr = arr.concat(lr.find(val, context));
+				else if(val instanceof lr.element)
+					arr = arr.concat(val.get());
+				else arr.push(val);
+			});
+			return new lr.element(arr);
+		}
+
 		else if(lr.isString(selector)){
 
 			if(selector[0] == '<' && selector[ selector.length-1 ] == '>')
@@ -34,6 +46,13 @@
 		arrayProto = Array.prototype;
 
 	lr.each = function(obj, fn){
+		if(lr.isString && lr.isString(fn)){
+			var command = fn,
+				args = arrayProto.slice.call(arguments,2);
+			fn = function(v){
+				v[command].apply(v, args)
+			}
+		}
 		if(+obj.length === obj.length){
 			for(var i = 0, l = obj.length; i < l; i++)
 				if(objProto.hasOwnProperty.call(obj, i))
@@ -44,6 +63,21 @@
 				if(objProto.hasOwnProperty.call(obj, i))
 					fn.call(obj, obj[i], i);
 		}
+	}
+
+	lr.map = function(obj, fn){
+		if(lr.isString && lr.isString(fn)){
+			var command = fn,
+				args = arrayProto.slice.call(arguments,2);
+			fn = function(v){
+				return v[command].apply(v, args);
+			}
+		}
+		var arr = [];
+		lr.each(obj, function(v,i){
+			arr.push( fn.call(this, v, i) );
+		});
+		return arr;
 	}
 
 	lr.types = {
@@ -1996,9 +2030,152 @@
 					elem.append(this.childNodes[i]);
 				elem.appendTo(this);
 			});
+		},
+
+		// traversing
+		slice:function(){
+			var t  = lr(arrayProto.slice.apply(this, arguments));
+			t.self = this;
+			return t;
+		},
+
+		eq:function(n){
+			return this.slice(n, n+1);
+		},
+
+		first:function(){ return this.slice(0,1); },
+
+		last:function(){ return this.slice(this.length-1, this.length); },
+
+		is:function(selector){
+			return this.filter(selector).length > 0;
+		},
+
+		has:function(selector){
+			var elements = [];
+			this.each(function(){
+				if( lr.find(selector, this).length > 0 )
+					elements.push(this);
+			});
+			return lr(elements);
+		},
+
+		filter:function(selector){
+			var elements = [];
+			this.each(function(){
+				var temp = lr.find(selector, this.parentNode);
+				for(var i = 0, l = temp.length; i < l; i++)
+					if(temp[i] == this)
+						elements.push(this);
+			});
+			return lr(elements);
+		},
+
+		not:function(selector){
+			var elements = [];
+			this.each(function(){
+				var temp = lr.find(selector, this.parentNode),
+					is   = true;
+				for(var i = 0, l = temp.length; i < l; i++)
+					if(temp[i] == this)
+						is = false;
+				if(is)
+					elements.push(this);
+			});
+			return lr(elements);
+		},
+
+		add:function(selector, context){
+			selector = lr.find(selector, context);
+			for(var i = 0, l = selector.length; i < l; i++)
+				this[this.length++] = selector[i];
+			return this;
+		},
+
+		children:function(){},
+
+		contents:function(){},
+
+		find:function(selector){
+			var elements = [];
+			this.each(function(){
+				elements = elements.concat( lr.find(selector, this) );
+			});
+			return lr(elements);
+		},
+
+		next:function(){},
+
+		nextAll:function(){},
+
+		prev:function(){},
+
+		prevAll:function(){},
+
+		parent:function(){},
+
+		parents:function(){},
+
+		siblings:function(){},
+
+		andSelf:function(){},
+
+		end:function(){},
+
+
+
+	});
+
+	
+	lr.anim = function(from,to,dur,ease){ // alias for creating anim object without "new" operator
+		return new lr.anim.class(from,to,dur,ease);
+	}
+
+	lr.anim.class = lr.class({
+
+		initialize : function(from,to,dur,ease){
+			this.from  = from;
+			this.delta = to - from;
+			this.dur   = dur || 500;
+			this.ease  = ease || 'linear';
+		},
+
+		start : function(fn){
+
+			var delta  = this.delta,
+				from   = this.from,
+				dur    = this.dur,
+				ease   = lr.anim.easing[ this.ease ],
+				start  = +new Date,
+				finish = start + dur,
+				interval;
+
+			interval = this.interval = setInterval(function(){
+
+				var time  = +new Date,
+					frame = ease( time > finish ? 1 : (time - start) / dur );
+
+				fn(from + delta * frame, frame);
+
+				if(time > finish)
+					clearInterval(interval)
+
+			}, 10);
+
+			return this;
+
+		},
+
+		stop : function(){
+			clearInterval(this.interval);
+			return this;
 		}
 
 	});
+
+	lr.anim.easing = {
+		'linear' : function(n){ return n }
+	};
 
 	return lr;
 
