@@ -2145,7 +2145,7 @@
 			var delta  = this.delta,
 				from   = this.from,
 				dur    = this.dur,
-				ease   = lr.anim.easing[ this.ease ],
+				ease   = lr.anim.easing[ this.ease ] || lr.argument(0),
 				start  = +new Date,
 				finish = start + dur,
 				interval;
@@ -2174,7 +2174,150 @@
 	});
 
 	lr.anim.easing = {
-		'linear' : function(n){ return n }
+		
+		linear : lr.argument(0),
+		swing  : function(n){ return (-Math.cos(n*Math.PI)/2) + 0.5 },
+		spring : function(n){ return 1 - (Math.cos(n * 4.5 * Math.PI) * Math.exp(-n * 6)) },
+		pulse  : function(n){ return (-Math.cos((n*((5)-.5)*2)*Math.PI)/2) + .5 },
+		wobble : function(n){ return (-Math.cos(n*Math.PI*(9*n))/2) + 0.5 },
+		flicker : function(n){ return lr.anim.easing.swing((n += (Math.random()-0.5)/5) < 0 ? 0 : n > 1 ? 1 : n) }, // or Math.pow(n, Math.cos(Math.random()))
+		mirror : function(n){ return lr.anim.easing.swing(n > 0.5 ? n * 2 : 1-(n-0.5)*2) },
+		back   : function(n){ return -n },
+		return : function(n){ return 1-n },
+		futIn  : function(n){ return Math.pow(n, n * 10) },
+		futOut : function(n){ return Math.pow(n, n) },
+
+		easeOut:function(n){ return Math.sin(n * Math.PI / 2) },
+		easeOutStrong:function(n){ return n == 1 ? 1 : 1 - Math.pow(2, -10*n) },
+		easeIn:function(n){ return Math.pow(n, 2) },
+		easeInStrong:function(n){ return n == 0 ? 0 : Math.pow(2, 10 * (n-1)) },
+		quadIn:function(n){ return Math.pow(n, 2) },
+		quadOut:function(n){ return n * (n - 2) * -1; },
+		quadInOut:function(n){
+			n *= 2;
+			if(n < 1) return Math.pow(n, 2) / 2;
+			return -1 * ((--n) * (n - 2) - 1) / 2;
+		},
+		cubicIn:function(n){ return Math.pow(n, 3) },
+		cubicOut:function(n){ return Math.pow(n - 1, 3) + 1 },
+		cubicInOut:function(n){
+			n *= 2;
+			if(n < 1) return Math.pow(n, 3) / 2;
+			n -= 2;
+			return (Math.pow(n,3) + 2) / 2;
+		},
+		quartIn:function(n){ return Math.pow(n,4) },
+		quartOut:function(n){ return -1 * (Math.pow(n - 1, 4) - 1) },
+		quartInOut:function(n){
+			n *= 2;
+			if(n < 1) return Math.pow(n, 4) / 2;
+			n -= 2;
+			return -0.5 * (Math.pow(n, 4) - 2);
+		},
+		quintIn:function(n){ return Math.pow(n, 5) },
+		quintOut:function(n){ return Math.pow(n - 1, 5) + 1 },
+		quintInOut:function(n){
+			n *= 2;
+			if(n < 1) return Math.pow(n, 5) / 2;
+			n -= 2;
+			return (Math.pow(n, 5) + 2) / 2;
+		},
+		sineIn:function(n){ return -1 * Math.cos(n * pi) + 1 },
+		sineOut:function(n){ return Math.sin(n * pi) },
+		sineInOut:function(n){ return -1 * (Math.cos(Math.PI * n) -1) / 2 },
+		expoIn:function(n){ return (n==0) ? 0 : Math.pow(2, 10 * (n - 1)) },
+		expoOut:function(n){ return (n==1) ? 1 : (-1 * Math.pow(2, -10 * n) + 1) },
+		expoInOut:function(n){
+			if(n == 0 || n == 1) return n;
+			n *= 2;
+			if(n < 1) return Math.pow(2, 10 * (n - 1)) / 2;
+			--n;
+			return (-1 * Math.pow(2, -10 * n) + 2) / 2;
+		},
+		circIn:function(n){ return -1 * (Math.sqrt(1 - Math.pow(n, 2)) - 1) },
+		circOut:function(n){
+			n -= 1;
+			return Math.sqrt(1 - Math.pow(n, 2));
+		},
+		circInOut:function(n){
+			n *= 2;
+			if(n < 1) return -1 / 2 * (Math.sqrt(1 - Math.pow(n, 2)) - 1);
+			n -= 2;
+			return 1 / 2 * (Math.sqrt(1 - Math.pow(n, 2)) + 1);
+		},
+		backIn:function(n){
+			return Math.pow(n, 2) * ((1.70158 + 1) * n - 1.70158);
+		},
+		backOut:function(n){
+			n -= 1;
+			return Math.pow(n, 2) * ((1.70158 + 1) * n + 1.70158) + 1;
+		},
+		backInOut:function(n){
+			n *= 2;
+			if(n < 1) return (Math.pow(n, 2) * (b * n - a)) / 2;
+			n -= 2;
+			return (Math.pow(n, 2) * (b * n + a) + 2) / 2;
+		},
+		elasticIn:function(n){
+			if(n == 0 || n == 1) return n;
+			n -= 1;
+			return -1 * Math.pow(2, 10 * n) * Math.sin((n - 0.075) * (2 * Math.PI) / 0.3);
+		},
+		elasticOut:function(n){
+			if(n == 0 || n == 1) return n;
+			return Math.pow(2, -10 * n) * Math.sin((n - 0.075) * (2 * Math.PI) / 0.3) + 1;
+		},
+		elasticInOut:function(n){
+			if(n == 0 || n == 1) return n;
+			n *= 2;
+			if(n < 1){
+				n -= 1;
+				return -0.5 * (Math.pow(2, 10 * n) * Math.sin((n - d) * (2 * Math.PI) / c));
+			}
+			n -= 1;
+			return 0.5 * (Math.pow(2, -10 * n) * Math.sin((n - d) * (2 * Math.PI) / c)) + 1;
+		},
+		bounceIn:function(n){ return (1 - lr.anim.easing.bounceOut(1 - n)) },
+		bounceOut:function(n){
+			var l;
+			if(n < (1 / 2.75)){
+				l= 7.5625 * Math.pow(n,2);
+			}
+			else{ // упростить!
+				if(n < (2 / 2.75)){
+					n -= (1.5 / 2.75);
+					l = 7.5625 * Math.pow(n, 2) + 0.75;
+				}
+				else{
+					if(n < (2.5 / 2.75)){
+						n -= (2.25 / 2.75);
+						l = 7.5625 * Math.pow(n, 2) + 0.9375;
+					}
+					else{
+						n -= (2.625 / 2.75);
+						l = 7.5625 * Math.pow(n, 2) + 0.984375;
+					}
+				}
+			}
+			return l;
+		},
+		bounceInOut:function(n){
+			if(n < 0.5) return lr.anim.easing.bounceIn(n * 2) / 2;
+			return (lr.anim.easing.bounceOut(n * 2 - 1) / 2) + 0.5;
+		},
+		bouncePast: function (pos) {
+			if (pos < (1 / 2.75)) {
+				return (7.5625 * pos * pos);
+			}
+			else if (pos < (2 / 2.75)) {
+				return 2 - (7.5625 * (pos -= (1.5 / 2.75)) * pos + .75);
+			} else if (pos < (2.5 / 2.75)) {
+				return 2 - (7.5625 * (pos -= (2.25 / 2.75)) * pos + .9375);
+			} else {
+			return 2 - (7.5625 * (pos -= (2.625 / 2.75)) * pos + .984375);
+			}
+		}
+
 	};
 
 	return lr;
